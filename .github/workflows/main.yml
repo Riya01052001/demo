@@ -1,0 +1,29 @@
+name: Auto-label Issues
+
+on:
+  issues:
+    types: [opened] # Trigger the workflow when a new issue is opened
+
+jobs:
+  label-issue:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v2
+      
+    - name: Label issue
+      run: |
+        # Script to label issues based on conditions
+        ISSUE_TITLE=$(jq -r '.issue.title' $GITHUB_EVENT_PATH)
+        ISSUE_BODY=$(jq -r '.issue.body' $GITHUB_EVENT_PATH)
+        
+        if [[ $ISSUE_TITLE == *"bug"* ]]; then
+          echo "::add-labels bug"
+        fi
+        
+        if [[ $ISSUE_BODY == *"feature request"* || $ISSUE_BODY == *"enhancement"* ]]; then
+          echo "::add-labels enhancement"
+        fi
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
